@@ -143,6 +143,183 @@ const swaggerDefinition: SwaggerDefinition = {
           },
         },
       },
+      Project: {
+        type: 'object',
+        properties: {
+          _id: {
+            type: 'string',
+            example: '507f1f77bcf86cd799439011',
+          },
+          name: {
+            type: 'string',
+            example: 'Website Redesign',
+          },
+          description: {
+            type: 'string',
+            example: 'Complete redesign of company website',
+          },
+          owner: {
+            type: 'string',
+            example: '507f1f77bcf86cd799439011',
+          },
+          collaborators: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            example: ['507f1f77bcf86cd799439012', '507f1f77bcf86cd799439013'],
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+          },
+        },
+      },
+      CreateProjectRequest: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: {
+            type: 'string',
+            minLength: 5,
+            maxLength: 80,
+            example: 'Website Redesign',
+          },
+          description: {
+            type: 'string',
+            maxLength: 500,
+            example: 'Complete redesign of company website',
+          },
+        },
+      },
+      UpdateProjectRequest: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            minLength: 5,
+            maxLength: 80,
+            example: 'Website Redesign',
+          },
+          description: {
+            type: 'string',
+            maxLength: 500,
+            example: 'Updated description',
+          },
+        },
+      },
+      Task: {
+        type: 'object',
+        properties: {
+          _id: {
+            type: 'string',
+            example: '507f1f77bcf86cd799439011',
+          },
+          title: {
+            type: 'string',
+            example: 'Design homepage mockup',
+          },
+          description: {
+            type: 'string',
+            example: 'Create high-fidelity mockup for homepage',
+          },
+          project: {
+            type: 'string',
+            example: '507f1f77bcf86cd799439011',
+          },
+          assignedTo: {
+            type: 'string',
+            example: '507f1f77bcf86cd799439012',
+          },
+          status: {
+            type: 'string',
+            enum: ['pendiente', 'en progreso', 'completada'],
+            example: 'en progreso',
+          },
+          priority: {
+            type: 'string',
+            enum: ['baja', 'media', 'alta'],
+            example: 'alta',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+          },
+        },
+      },
+      CreateTaskRequest: {
+        type: 'object',
+        required: ['title', 'project'],
+        properties: {
+          title: {
+            type: 'string',
+            minLength: 5,
+            maxLength: 120,
+            example: 'Design homepage mockup',
+          },
+          description: {
+            type: 'string',
+            maxLength: 1000,
+            example: 'Create high-fidelity mockup for homepage',
+          },
+          project: {
+            type: 'string',
+            example: '507f1f77bcf86cd799439011',
+          },
+          assignedTo: {
+            type: 'string',
+            example: '507f1f77bcf86cd799439012',
+          },
+          status: {
+            type: 'string',
+            enum: ['pendiente', 'en progreso', 'completada'],
+            example: 'pendiente',
+          },
+          priority: {
+            type: 'string',
+            enum: ['baja', 'media', 'alta'],
+            example: 'media',
+          },
+        },
+      },
+      UpdateTaskRequest: {
+        type: 'object',
+        properties: {
+          title: {
+            type: 'string',
+            minLength: 5,
+            maxLength: 120,
+            example: 'Design homepage mockup',
+          },
+          description: {
+            type: 'string',
+            maxLength: 1000,
+            example: 'Updated description',
+          },
+          assignedTo: {
+            type: 'string',
+            example: '507f1f77bcf86cd799439012',
+          },
+          status: {
+            type: 'string',
+            enum: ['pendiente', 'en progreso', 'completada'],
+            example: 'completada',
+          },
+          priority: {
+            type: 'string',
+            enum: ['baja', 'media', 'alta'],
+            example: 'alta',
+          },
+        },
+      },
     },
   },
 }
