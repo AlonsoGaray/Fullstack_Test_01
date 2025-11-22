@@ -79,6 +79,7 @@ const swaggerDefinition: SwaggerDefinition = {
           password: {
             type: 'string',
             minLength: 8,
+            maxLength: 30,
             example: 'password123',
           },
         },
