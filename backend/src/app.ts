@@ -3,6 +3,8 @@ import helmet from 'helmet'
 import cors from 'cors'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './config/swagger'
+import authRoutes from './routes/auth.routes'
+import { errorHandler } from './middleware/errorHandler'
 
 const app: Application = express()
 
@@ -25,11 +27,15 @@ app.get('/health', (_req: Request, res: Response) => {
   })
 })
 
+app.use('/api/auth', authRoutes)
+
 app.use((_req: Request, res: Response) => {
   res.status(404).json({
     success: false,
     message: 'Route not found',
   })
 })
+
+app.use(errorHandler)
 
 export default app
