@@ -131,3 +131,36 @@ export const getProfile = async (
     })
   }
 }
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Logout user
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized
+ */
+export const logout = async (
+  req: AuthRequest,
+  res: Response,
+): Promise<void> => {
+  res.status(200).json({
+    success: true,
+    message: 'Logout successful',
+  })
+}
