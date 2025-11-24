@@ -1,8 +1,8 @@
 import rateLimit from 'express-rate-limit'
 
 export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
+  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+  max: Number(process.env.RATE_LIMIT_AUTH_MAX) || 5,
   message: {
     success: false,
     message:
@@ -13,8 +13,8 @@ export const authLimiter = rateLimit({
 })
 
 export const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+  max: Number(process.env.RATE_LIMIT_API_MAX) || 100,
   message: {
     success: false,
     message: 'Too many requests. Please try again later.',
