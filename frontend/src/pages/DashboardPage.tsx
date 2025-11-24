@@ -8,7 +8,6 @@ import { useDashboardStats } from '@/hooks/useDashboard'
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user)
   const { data: stats, isLoading } = useDashboardStats()
-  console.log(stats)
 
   const statCards: StatCardProps[] = [
     {
