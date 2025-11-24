@@ -1,9 +1,16 @@
-import { FolderOpen, Clock, CheckCircle, TrendingUp } from 'lucide-react'
+import {
+  Folder,
+  Clock,
+  Check,
+  TrendingUp,
+  ListTodo,
+  Circle,
+} from 'lucide-react'
 
 export interface StatCardProps {
   title: string
   value: string
-  icon: 'folder' | 'clock' | 'check' | 'trending'
+  icon: 'folder' | 'clock' | 'check' | 'trending' | 'list' | 'circle'
   bgColor: string
   iconColor: string
 }
@@ -16,10 +23,12 @@ export default function StatCard({
   iconColor,
 }: StatCardProps) {
   const icons = {
-    folder: FolderOpen,
+    folder: Folder,
     clock: Clock,
-    check: CheckCircle,
+    check: Check,
     trending: TrendingUp,
+    list: ListTodo,
+    circle: Circle,
   }
 
   const Icon = icons[icon]

@@ -36,8 +36,29 @@ export default function DashboardPage() {
       iconColor: 'text-blue-500',
     },
     {
-      title: 'Active Tasks',
+      title: 'Total Tasks',
       value: stats?.tasks.total.toString() || '0',
+      icon: 'list' as const,
+      bgColor: 'bg-indigo-50',
+      iconColor: 'text-indigo-500',
+    },
+    {
+      title: 'Assigned to Me',
+      value: stats?.tasks.assigned.toString() || '0',
+      icon: 'trending' as const,
+      bgColor: 'bg-purple-50',
+      iconColor: 'text-purple-500',
+    },
+    {
+      title: 'To Do',
+      value: stats?.tasks.byStatus.pendiente?.toString() || '0',
+      icon: 'circle' as const,
+      bgColor: 'bg-gray-50',
+      iconColor: 'text-gray-500',
+    },
+    {
+      title: 'In Progress',
+      value: stats?.tasks.byStatus['en progreso']?.toString() || '0',
       icon: 'clock' as const,
       bgColor: 'bg-orange-50',
       iconColor: 'text-orange-500',
@@ -48,13 +69,6 @@ export default function DashboardPage() {
       icon: 'check' as const,
       bgColor: 'bg-green-50',
       iconColor: 'text-green-500',
-    },
-    {
-      title: 'Assigned to Me',
-      value: stats?.tasks.assigned.toString() || '0',
-      icon: 'trending' as const,
-      bgColor: 'bg-purple-50',
-      iconColor: 'text-purple-500',
     },
   ]
 
@@ -107,7 +121,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {statCards.map((stat) => (
                 <StatCard key={stat.title} {...stat} />
               ))}
