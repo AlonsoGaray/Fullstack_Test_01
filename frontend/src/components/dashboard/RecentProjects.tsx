@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useProjects } from '@/hooks/useProjects'
-import NewProjectDialog from '@/components/dialogs/NewProjectDialog'
+import NewProjectDialog from '@/components/project/NewProjectDialog'
 
 export default function RecentProjects() {
   const [dialogOpen, setDialogOpen] = useState(false)
-  const { data, isLoading } = useProjects(1, 3)
+  const { data: projects, isLoading } = useProjects(1, 3)
 
   return (
     <div className="mb-8">
@@ -24,7 +24,7 @@ export default function RecentProjects() {
         <div className="text-center py-12">
           <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : data?.length === 0 ? (
+      ) : projects?.length === 0 ? (
         <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-100 text-center">
           <p className="text-gray-500">
             No projects yet. Create your first project!
@@ -32,7 +32,7 @@ export default function RecentProjects() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {data?.map((project) => {
+          {projects?.map((project) => {
             const totalTasks = 0 // TODO: Get from backend
             const completedTasks = 0 // TODO: Get from backend
             const progress =

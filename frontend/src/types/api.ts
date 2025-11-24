@@ -6,12 +6,15 @@ export interface User {
   updatedAt?: string
 }
 
+export type TeamMember = Pick<User, '_id' | 'name' | 'email'> &
+  Partial<Pick<User, 'createdAt' | 'updatedAt'>>
+
 export interface Project {
   _id: string
   name: string
   description?: string
-  owner: User | string
-  collaborators: (User | string)[]
+  owner: User
+  collaborators: User[]
   createdAt: string
   updatedAt: string
 }
@@ -23,8 +26,8 @@ export interface Task {
   _id: string
   title: string
   description?: string
-  project: Project | string
-  assignedTo?: User | string
+  project: Project
+  assignedTo?: User
   status: TaskStatus
   priority: TaskPriority
   createdAt: string
