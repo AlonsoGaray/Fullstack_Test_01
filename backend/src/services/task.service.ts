@@ -10,12 +10,10 @@ class TaskService {
       throw new Error('Project not found')
     }
 
-    const isOwner = project.owner.toString() === userId
-    const isCollaborator = project.collaborators.some(
-      (c) => c.toString() === userId,
-    )
-
-    if (!isOwner && !isCollaborator) {
+    if (
+      project.owner.toString() !== userId &&
+      !project.collaborators.some((c) => c.toString() === userId)
+    ) {
       throw new Error('You do not have access to this project')
     }
 
@@ -31,6 +29,7 @@ class TaskService {
     }
 
     const task = await Task.create(data)
+
     return await task.populate([
       { path: 'project', select: 'name' },
       { path: 'assignedTo', select: 'name email' },
@@ -161,15 +160,13 @@ class TaskService {
       }
     }
 
-    const updatedTask = await Task.findByIdAndUpdate(taskId, data, {
+    return await Task.findByIdAndUpdate(taskId, data, {
       new: true,
       runValidators: true,
     }).populate([
       { path: 'project', select: 'name' },
       { path: 'assignedTo', select: 'name email' },
     ])
-
-    return updatedTask
   }
 
   async deleteTask(taskId: string, userId: string) {
@@ -179,15 +176,11 @@ class TaskService {
       throw new Error('Task not found')
     }
 
-    const hasAccess = await this.checkProjectAccess(
-      userId,
-      task.project.toString(),
-    )
-    if (!hasAccess) {
+    if (!(await this.checkProjectAccess(userId, task.project.toString()))) {
       throw new Error('Access denied')
     }
 
-    await task.deleteOne()
+    await Task.findByIdAndDelete(taskId)
 
     return { message: 'Task deleted successfully' }
   }
@@ -199,12 +192,10 @@ class TaskService {
     const project = await Project.findById(projectId)
     if (!project) return false
 
-    const isOwner = project.owner.toString() === userId
-    const isCollaborator = project.collaborators.some(
-      (c) => c.toString() === userId,
+    return (
+      project.owner.toString() === userId ||
+      project.collaborators.some((c) => c.toString() === userId)
     )
-
-    return isOwner || isCollaborator
   }
 
   private async getAccessibleProjectIds(userId: string): Promise<string[]> {

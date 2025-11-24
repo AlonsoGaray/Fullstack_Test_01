@@ -6,6 +6,15 @@ import {
 } from '../schemas/project.schema'
 
 class ProjectService {
+  private async validateProjectOwnership(projectId: string, userId: string) {
+    const project = await Project.findById(projectId)
+    if (!project) throw new Error('Project not found')
+    if (project.owner.toString() !== userId) {
+      throw new Error('Only the project owner can perform this action')
+    }
+    return project
+  }
+
   async createProject(userId: string, data: CreateProjectInput) {
     const project = await Project.create({
       ...data,
@@ -57,12 +66,12 @@ class ProjectService {
       throw new Error('Project not found')
     }
 
-    const isOwner = project.owner._id.toString() === userId
-    const isCollaborator = project.collaborators.some(
-      (c: mongoose.Types.ObjectId) => c._id.toString() === userId,
-    )
-
-    if (!isOwner && !isCollaborator) {
+    if (
+      project.owner._id.toString() !== userId &&
+      !project.collaborators.some(
+        (c: mongoose.Types.ObjectId) => c._id.toString() === userId,
+      )
+    ) {
       throw new Error('Access denied')
     }
 
@@ -74,36 +83,18 @@ class ProjectService {
     userId: string,
     data: UpdateProjectInput,
   ) {
-    const project = await Project.findById(projectId)
+    await this.validateProjectOwnership(projectId, userId)
 
-    if (!project) {
-      throw new Error('Project not found')
-    }
-
-    if (project.owner.toString() !== userId) {
-      throw new Error('Only the project owner can update the project')
-    }
-
-    const updatedProject = await Project.findByIdAndUpdate(projectId, data, {
+    return await Project.findByIdAndUpdate(projectId, data, {
       new: true,
       runValidators: true,
     }).populate('owner', 'name email')
-
-    return updatedProject
   }
 
   async deleteProject(projectId: string, userId: string) {
-    const project = await Project.findById(projectId)
+    await this.validateProjectOwnership(projectId, userId)
 
-    if (!project) {
-      throw new Error('Project not found')
-    }
-
-    if (project.owner.toString() !== userId) {
-      throw new Error('Only the project owner can delete the project')
-    }
-
-    await project.deleteOne()
+    await Project.findByIdAndDelete(projectId)
 
     return { message: 'Project deleted successfully' }
   }
@@ -113,28 +104,20 @@ class ProjectService {
     userId: string,
     collaboratorId: string,
   ) {
-    const project = await Project.findById(projectId)
+    const project = await this.validateProjectOwnership(projectId, userId)
 
-    if (!project) {
-      throw new Error('Project not found')
+    if (
+      project.owner.toString() === collaboratorId ||
+      project.collaborators.some((c) => c.toString() === collaboratorId)
+    ) {
+      throw new Error('User is already part of the project')
     }
 
-    if (project.owner.toString() !== userId) {
-      throw new Error('Only the project owner can add collaborators')
-    }
-
-    if (project.owner.toString() === collaboratorId) {
-      throw new Error('Owner is already part of the project')
-    }
-
-    if (project.collaborators.some((c) => c.toString() === collaboratorId)) {
-      throw new Error('User is already a collaborator')
-    }
-
-    project.collaborators.push(new mongoose.Types.ObjectId(collaboratorId))
-    await project.save()
-
-    return await project.populate('collaborators', 'name email')
+    return await Project.findByIdAndUpdate(
+      projectId,
+      { $addToSet: { collaborators: collaboratorId } },
+      { new: true, runValidators: true },
+    ).populate('collaborators', 'name email')
   }
 
   async removeCollaborator(
@@ -142,23 +125,13 @@ class ProjectService {
     userId: string,
     collaboratorId: string,
   ) {
-    const project = await Project.findById(projectId)
+    await this.validateProjectOwnership(projectId, userId)
 
-    if (!project) {
-      throw new Error('Project not found')
-    }
-
-    if (project.owner.toString() !== userId) {
-      throw new Error('Only the project owner can remove collaborators')
-    }
-
-    project.collaborators = project.collaborators.filter(
-      (c) => c.toString() !== collaboratorId,
-    )
-
-    await project.save()
-
-    return await project.populate('collaborators', 'name email')
+    return await Project.findByIdAndUpdate(
+      projectId,
+      { $pull: { collaborators: collaboratorId } },
+      { new: true },
+    ).populate('collaborators', 'name email')
   }
 }
 
