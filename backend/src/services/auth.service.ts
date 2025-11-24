@@ -1,4 +1,4 @@
-import { User } from '../models/User'
+import { User } from '../models/User.model'
 import { generateToken } from '../utils/jwt'
 import { RegisterInput, LoginInput } from '../schemas/auth.schema'
 

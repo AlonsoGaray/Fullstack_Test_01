@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { Project } from '../models/Project'
+import { Project } from '../models/Project.model'
 import {
   CreateProjectInput,
   UpdateProjectInput,
