@@ -1,34 +1,103 @@
 import { useState } from 'react'
-import { Bell, Settings, Plus, Filter } from 'lucide-react'
+import {
+  Bell,
+  Settings,
+  Plus,
+  Filter as FilterIcon,
+  ArrowUpDown,
+} from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useTasks } from '@/hooks/useTasks'
+import { useProjects } from '@/hooks/useProjects'
 import { KanbanColumn } from '@/components/task/KanbanColumn'
 import NewTaskDialog from '@/components/task/NewTaskDialog'
 import SearchBar from '@/components/common/SearchBar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+
+type SortOption =
+  | 'newest'
+  | 'oldest'
+  | 'priority-high'
+  | 'priority-low'
+  | 'title-az'
+  | 'title-za'
 
 export default function TasksPage() {
   const user = useAuthStore((state) => state.user)
   const [searchQuery, setSearchQuery] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [filterPriority, setFilterPriority] = useState<string>('all')
+  const [filterProject, setFilterProject] = useState<string>('all')
+  const [sortBy, setSortBy] = useState<SortOption>('newest')
 
   const { data: tasks, isLoading } = useTasks()
+  const { data: projects } = useProjects(1, 100)
 
-  const filteredTasks = tasks?.filter((task) => {
-    const query = searchQuery.toLowerCase()
-    return (
-      task.title.toLowerCase().includes(query) ||
-      task.description?.toLowerCase().includes(query)
+  let processedTasks = tasks || []
+
+  if (searchQuery) {
+    processedTasks = processedTasks.filter((task) => {
+      const query = searchQuery.toLowerCase()
+      return (
+        task.title.toLowerCase().includes(query) ||
+        task.description?.toLowerCase().includes(query)
+      )
+    })
+  }
+
+  if (filterPriority !== 'all') {
+    processedTasks = processedTasks.filter(
+      (task) => task.priority === filterPriority,
     )
+  }
+
+  if (filterProject !== 'all') {
+    processedTasks = processedTasks.filter((task) => {
+      const projectId =
+        typeof task.project === 'string' ? task.project : task.project._id
+      return projectId === filterProject
+    })
+  }
+
+  processedTasks = [...processedTasks].sort((a, b) => {
+    switch (sortBy) {
+      case 'newest':
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      case 'oldest':
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      case 'priority-high':
+        const priorityOrder = { alta: 3, media: 2, baja: 1 }
+        return priorityOrder[b.priority] - priorityOrder[a.priority]
+      case 'priority-low':
+        const priorityOrderLow = { alta: 3, media: 2, baja: 1 }
+        return priorityOrderLow[a.priority] - priorityOrderLow[b.priority]
+      case 'title-az':
+        return a.title.localeCompare(b.title)
+      case 'title-za':
+        return b.title.localeCompare(a.title)
+      default:
+        return 0
+    }
   })
 
   const groupedTasks = {
-    pendiente:
-      filteredTasks?.filter((task) => task.status === 'pendiente') || [],
-    'en progreso':
-      filteredTasks?.filter((task) => task.status === 'en progreso') || [],
-    completada:
-      filteredTasks?.filter((task) => task.status === 'completada') || [],
+    pendiente: processedTasks.filter((task) => task.status === 'pendiente'),
+    'en progreso': processedTasks.filter(
+      (task) => task.status === 'en progreso',
+    ),
+    completada: processedTasks.filter((task) => task.status === 'completada'),
   }
+
+  const activeFilters = [
+    filterPriority !== 'all' && 'Priority',
+    filterProject !== 'all' && 'Project',
+  ].filter(Boolean)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -71,13 +140,134 @@ export default function TasksPage() {
 
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <Filter className="w-4 h-4" />
-              <span>Filter</span>
-            </button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              Sort
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  <FilterIcon className="w-4 h-4" />
+                  <span>Filter</span>
+                  {activeFilters.length > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                      {activeFilters.length}
+                    </span>
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <div className="px-2 py-1.5 text-xs font-semibold text-gray-500">
+                  Filter by Priority
+                </div>
+                <DropdownMenuItem onClick={() => setFilterPriority('all')}>
+                  <span
+                    className={filterPriority === 'all' ? 'font-semibold' : ''}
+                  >
+                    All Priorities
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterPriority('alta')}>
+                  <span
+                    className={filterPriority === 'alta' ? 'font-semibold' : ''}
+                  >
+                    🔴 High Priority
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterPriority('media')}>
+                  <span
+                    className={
+                      filterPriority === 'media' ? 'font-semibold' : ''
+                    }
+                  >
+                    🟡 Medium Priority
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterPriority('baja')}>
+                  <span
+                    className={filterPriority === 'baja' ? 'font-semibold' : ''}
+                  >
+                    🟢 Low Priority
+                  </span>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <div className="px-2 py-1.5 text-xs font-semibold text-gray-500">
+                  Filter by Project
+                </div>
+                <DropdownMenuItem onClick={() => setFilterProject('all')}>
+                  <span
+                    className={filterProject === 'all' ? 'font-semibold' : ''}
+                  >
+                    All Projects
+                  </span>
+                </DropdownMenuItem>
+                {projects?.map((project) => (
+                  <DropdownMenuItem
+                    key={project._id}
+                    onClick={() => setFilterProject(project._id)}
+                  >
+                    <span
+                      className={
+                        filterProject === project._id ? 'font-semibold' : ''
+                      }
+                    >
+                      {project.name}
+                    </span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  <ArrowUpDown className="w-4 h-4" />
+                  <span>Sort</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuItem onClick={() => setSortBy('newest')}>
+                  <span className={sortBy === 'newest' ? 'font-semibold' : ''}>
+                    Newest First
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('oldest')}>
+                  <span className={sortBy === 'oldest' ? 'font-semibold' : ''}>
+                    Oldest First
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setSortBy('priority-high')}>
+                  <span
+                    className={
+                      sortBy === 'priority-high' ? 'font-semibold' : ''
+                    }
+                  >
+                    Priority: High to Low
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('priority-low')}>
+                  <span
+                    className={sortBy === 'priority-low' ? 'font-semibold' : ''}
+                  >
+                    Priority: Low to High
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setSortBy('title-az')}>
+                  <span
+                    className={sortBy === 'title-az' ? 'font-semibold' : ''}
+                  >
+                    Title: A to Z
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('title-za')}>
+                  <span
+                    className={sortBy === 'title-za' ? 'font-semibold' : ''}
+                  >
+                    Title: Z to A
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
