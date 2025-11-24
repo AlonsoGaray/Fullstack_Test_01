@@ -9,17 +9,28 @@ export default defineConfig([
   globalIgnores(['dist']),
   {
     files: ['**/*.{ts,tsx}'],
+    ignores: ['**/*.test.{ts,tsx}'],
+
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+    },
+
+    plugins: {
+      '@typescript-eslint': tseslint,
+      prettier: prettier,
+    },
+
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-    },
+
     rules: {
+      ...eslintConfigPrettier.rules,
+      'prettier/prettier': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
