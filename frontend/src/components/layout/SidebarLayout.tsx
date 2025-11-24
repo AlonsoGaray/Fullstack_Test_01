@@ -4,8 +4,6 @@ import {
   LayoutDashboard,
   FolderKanban,
   CheckSquare,
-  Users,
-  Settings,
   LogOut,
   X,
   Menu,
@@ -33,8 +31,6 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Projects', path: '/projects', icon: FolderKanban },
     { name: 'Tasks', path: '/tasks', icon: CheckSquare },
-    { name: 'Team', path: '/team', icon: Users },
-    { name: 'Settings', path: '/settings', icon: Settings },
   ]
 
   return (
@@ -49,7 +45,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
       )}
 
       <aside
-        className={`fixed left-0 top-0 h-screen bg-gray-900 text-white transition-transform duration-300 z-30 w-64 lg:translate-x-0 ${
+        className={`fixed left-0 top-0 h-screen bg-gray-900 text-white transition-transform duration-300 z-30 w-64 lg:translate-x-0 flex flex-col ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -68,27 +64,29 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
           </button>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const isActive = location.pathname === item.path
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setOpen(false)}
-                className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-gray-800 text-white'
-                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span>{item.name}</span>
-              </Link>
-            )
-          })}
-        </nav>
+        <div className="flex-1 overflow-y-auto">
+          <nav className="px-3 py-4 space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon
+              const isActive = location.pathname === item.path
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setOpen(false)}
+                  className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors ${
+                    isActive
+                      ? 'bg-gray-800 text-white'
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{item.name}</span>
+                </Link>
+              )
+            })}
+          </nav>
+        </div>
 
         <button
           onClick={handleLogout}

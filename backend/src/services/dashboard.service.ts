@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import { Project } from '../models/Project.model'
 import { Task } from '../models/Task.model'
 
@@ -10,13 +11,17 @@ class DashboardService {
     ])
 
     const projectIds = allTasks
+    const objectIds = projectIds.map((id) => new mongoose.Types.ObjectId(id))
 
     const [totalTasks, tasksByStatus, tasksByPriority, recentTasks] =
       await Promise.all([
-        Task.countDocuments({ project: { $in: projectIds } }),
+        Task.countDocuments({
+          project: { $in: objectIds },
+          status: { $in: ['pendiente', 'en progreso'] },
+        }),
         this.getTasksByStatus(projectIds),
         this.getTasksByPriority(projectIds),
-        Task.find({ project: { $in: projectIds } })
+        Task.find({ project: { $in: objectIds } })
           .sort({ createdAt: -1 })
           .limit(5)
           .populate('project', 'name')
@@ -24,7 +29,7 @@ class DashboardService {
       ])
 
     const myTasks = await Task.countDocuments({
-      project: { $in: projectIds },
+      project: { $in: objectIds },
       assignedTo: userId,
     })
 
@@ -45,8 +50,11 @@ class DashboardService {
   }
 
   private async getTasksByStatus(projectIds: string[]) {
+    const mongoose = await import('mongoose')
+    const objectIds = projectIds.map((id) => new mongoose.Types.ObjectId(id))
+
     const result = await Task.aggregate([
-      { $match: { project: { $in: projectIds.map((id) => id) } } },
+      { $match: { project: { $in: objectIds } } },
       { $group: { _id: '$status', count: { $sum: 1 } } },
     ])
 
@@ -58,8 +66,11 @@ class DashboardService {
   }
 
   private async getTasksByPriority(projectIds: string[]) {
+    const mongoose = await import('mongoose')
+    const objectIds = projectIds.map((id) => new mongoose.Types.ObjectId(id))
+
     const result = await Task.aggregate([
-      { $match: { project: { $in: projectIds.map((id) => id) } } },
+      { $match: { project: { $in: objectIds } } },
       { $group: { _id: '$priority', count: { $sum: 1 } } },
     ])
 

@@ -1,7 +1,59 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useProjects } from '@/hooks/useProjects'
+import { useTasks } from '@/hooks/useTasks'
 import NewProjectDialog from '@/components/project/NewProjectDialog'
+import type { Project } from '@/types/api'
+
+interface ProjectCardProps {
+  project: Project
+}
+
+function ProjectCardWithTasks({ project }: ProjectCardProps) {
+  const { data: tasks } = useTasks(project._id)
+
+  const totalTasks = tasks?.length || 0
+  const completedTasks =
+    tasks?.filter((task) => task.status === 'completada').length || 0
+  const progress =
+    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+
+  return (
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        {project.name}
+      </h3>
+
+      {project.description && (
+        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+          {project.description}
+        </p>
+      )}
+
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm text-gray-500">Progress</span>
+          <span className="text-sm font-semibold text-gray-900">
+            {progress}%
+          </span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div
+            className="bg-blue-600 h-2 rounded-full transition-all"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between text-sm text-gray-500">
+        <span>
+          {completedTasks}/{totalTasks} tasks
+        </span>
+        <span>{project.collaborators.length + 1} team members</span>
+      </div>
+    </div>
+  )
+}
 
 export default function RecentProjects() {
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -32,53 +84,9 @@ export default function RecentProjects() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects?.map((project) => {
-            const totalTasks = 0 // TODO: Get from backend
-            const completedTasks = 0 // TODO: Get from backend
-            const progress =
-              totalTasks > 0
-                ? Math.round((completedTasks / totalTasks) * 100)
-                : 0
-
-            return (
-              <div
-                key={project._id}
-                className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
-              >
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  {project.name}
-                </h3>
-
-                {project.description && (
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                    {project.description}
-                  </p>
-                )}
-
-                <div className="mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-500">Progress</span>
-                    <span className="text-sm font-semibold text-gray-900">
-                      {progress}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full transition-all"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span>
-                    {completedTasks}/{totalTasks} tasks
-                  </span>
-                  <span>{project.collaborators.length + 1} team members</span>
-                </div>
-              </div>
-            )
-          })}
+          {projects?.map((project) => (
+            <ProjectCardWithTasks key={project._id} project={project} />
+          ))}
         </div>
       )}
 
