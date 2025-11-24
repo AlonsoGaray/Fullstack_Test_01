@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { X } from 'lucide-react'
@@ -6,6 +5,7 @@ import { useCreateTask } from '@/hooks/useTasks'
 import { useProjects } from '@/hooks/useProjects'
 import { taskSchema, type TaskFormData } from '@/schemas/task'
 import { AxiosError } from 'axios'
+import { toast } from 'sonner'
 
 interface NewTaskDialogProps {
   open: boolean
@@ -13,7 +13,6 @@ interface NewTaskDialogProps {
 }
 
 export default function NewTaskDialog({ open, onClose }: NewTaskDialogProps) {
-  const [error, setError] = useState('')
   const createTask = useCreateTask()
   const { data: projects } = useProjects(1, 100)
 
@@ -32,7 +31,6 @@ export default function NewTaskDialog({ open, onClose }: NewTaskDialogProps) {
 
   const onSubmit = async (data: TaskFormData) => {
     try {
-      setError('')
       await createTask.mutateAsync({
         title: data.title,
         description: data.description,
@@ -42,20 +40,22 @@ export default function NewTaskDialog({ open, onClose }: NewTaskDialogProps) {
       })
       reset()
       onClose()
+      toast.success('Task created successfully')
     } catch (err: unknown) {
+      let errorMessage = 'Failed to create task'
+
       if (err instanceof AxiosError) {
-        setError(err.response?.data?.message || 'Failed to create task')
+        errorMessage = err.response?.data?.message || errorMessage
       } else if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Failed to create task')
+        errorMessage = err.message
       }
+
+      toast.error(errorMessage)
     }
   }
 
   const handleClose = () => {
     reset()
-    setError('')
     onClose()
   }
 
@@ -75,12 +75,6 @@ export default function NewTaskDialog({ open, onClose }: NewTaskDialogProps) {
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>

@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import { MoreVertical } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface TaskCardProps {
   task: Task
@@ -49,8 +50,10 @@ export function TaskCard({ task }: TaskCardProps) {
         id: task._id,
         data: { status: newStatus },
       })
+      toast.success('Task status updated')
     } catch (error) {
       console.error('Failed to update status:', error)
+      toast.error('Failed to update task status')
     } finally {
       setIsUpdating(false)
     }
@@ -65,8 +68,10 @@ export function TaskCard({ task }: TaskCardProps) {
         id: task._id,
         data: { priority: newPriority },
       })
+      toast.success('Task priority updated')
     } catch (error) {
       console.error('Failed to update priority:', error)
+      toast.error('Failed to update task priority')
     } finally {
       setIsUpdating(false)
     }

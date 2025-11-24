@@ -5,6 +5,7 @@ import { usersApi } from '@/api/users'
 import { useQueryClient } from '@tanstack/react-query'
 import type { Project } from '@/types/api'
 import { AxiosError } from 'axios'
+import { toast } from 'sonner'
 
 interface ManageTeamDialogProps {
   open: boolean
@@ -18,14 +19,12 @@ export default function ManageTeamDialog({
   project,
 }: ManageTeamDialogProps) {
   const [email, setEmail] = useState('')
-  const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const currentUser = useAuthStore((state) => state.user)
   const queryClient = useQueryClient()
 
   const handleAddCollaborator = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
     setIsLoading(true)
 
     try {
@@ -37,14 +36,17 @@ export default function ManageTeamDialog({
       queryClient.invalidateQueries({ queryKey: ['project', project._id] })
 
       setEmail('')
+      toast.success('Team member added successfully')
     } catch (err: unknown) {
+      let errorMessage = 'Failed to add collaborator'
+
       if (err instanceof AxiosError) {
-        setError(err.response?.data?.message || 'Failed to add collaborator')
+        errorMessage = err.response?.data?.message || errorMessage
       } else if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Failed to add collaborator')
+        errorMessage = err.message
       }
+
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -56,9 +58,11 @@ export default function ManageTeamDialog({
 
       queryClient.invalidateQueries({ queryKey: ['projects'] })
       queryClient.invalidateQueries({ queryKey: ['project', project._id] })
+
+      toast.success('Team member removed successfully')
     } catch (err) {
       console.error('Failed to remove collaborator:', err)
-      setError('Failed to remove collaborator')
+      toast.error('Failed to remove team member')
     }
   }
 
@@ -81,13 +85,6 @@ export default function ManageTeamDialog({
           </button>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
-
-        {/* Add Collaborator Form */}
         <form onSubmit={handleAddCollaborator} className="mb-6">
           <label
             htmlFor="email"
@@ -121,7 +118,6 @@ export default function ManageTeamDialog({
           </div>
         </form>
 
-        {/* Team Members List */}
         <div>
           <h3 className="text-sm font-medium text-gray-700 mb-3">
             Team Members ({teamMembers.length})

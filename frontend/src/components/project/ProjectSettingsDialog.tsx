@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { X } from 'lucide-react'
@@ -6,6 +5,7 @@ import { useUpdateProject } from '@/hooks/useProjects'
 import type { Project } from '@/types/api'
 import { AxiosError } from 'axios'
 import { settingsSchema, type SettingsFormData } from '@/schemas/project'
+import { toast } from 'sonner'
 
 interface ProjectSettingsDialogProps {
   open: boolean
@@ -18,7 +18,6 @@ export default function ProjectSettingsDialog({
   onClose,
   project,
 }: ProjectSettingsDialogProps) {
-  const [error, setError] = useState('')
   const updateProject = useUpdateProject()
 
   const {
@@ -36,20 +35,22 @@ export default function ProjectSettingsDialog({
 
   const onSubmit = async (data: SettingsFormData) => {
     try {
-      setError('')
       await updateProject.mutateAsync({
         id: project._id,
         data,
       })
       onClose()
+      toast.success('Project updated successfully')
     } catch (err: unknown) {
+      let errorMessage = 'Failed to update project'
+
       if (err instanceof AxiosError) {
-        setError(err.response?.data?.message || 'Failed to update project')
+        errorMessage = err.response?.data?.message || errorMessage
       } else if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Failed to update project')
+        errorMessage = err.message
       }
+
+      toast.error(errorMessage)
     }
   }
 
@@ -58,7 +59,6 @@ export default function ProjectSettingsDialog({
       name: project.name,
       description: project.description || '',
     })
-    setError('')
     onClose()
   }
 
@@ -78,12 +78,6 @@ export default function ProjectSettingsDialog({
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>

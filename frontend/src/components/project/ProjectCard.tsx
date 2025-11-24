@@ -21,6 +21,8 @@ import {
 } from '@/components/ui/alert-dialog'
 import ManageTeamDialog from './ManageTeamDialog'
 import ProjectSettingsDialog from './ProjectSettingsDialog'
+import { AxiosError } from 'axios'
+import { toast } from 'sonner'
 
 interface ProjectCardProps {
   project: Project
@@ -64,8 +66,25 @@ export function ProjectCard({ project }: ProjectCardProps) {
     try {
       await deleteProject.mutateAsync(project._id)
       setDeleteDialogOpen(false)
+      toast.success('Project deleted successfully')
     } catch (error) {
       console.error('Failed to delete project:', error)
+      let errorMessage = 'Failed to delete project. Please try again.'
+
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data.message || errorMessage
+      } else if (error instanceof Error) {
+        if (error.message.includes('403')) {
+          errorMessage = 'You do not have permission to delete this project.'
+        } else if (error.message.includes('404')) {
+          errorMessage = 'Project not found.'
+        } else if (error.message.includes('Network')) {
+          errorMessage = 'Network error. Please check your connection.'
+        }
+      }
+
+      toast.error(errorMessage)
+      setDeleteDialogOpen(false)
     }
   }
 
@@ -168,7 +187,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+              className="bg-red-600 hover:bg-red-700"
+              disabled={deleteProject.isPending}
             >
               {deleteProject.isPending ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>

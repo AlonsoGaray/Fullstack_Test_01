@@ -1,10 +1,10 @@
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { X } from 'lucide-react'
 import { useCreateProject } from '@/hooks/useProjects'
 import { projectSchema, type ProjectFormData } from '@/schemas/project'
 import { AxiosError } from 'axios'
+import { toast } from 'sonner'
 
 interface NewProjectDialogProps {
   open: boolean
@@ -15,7 +15,6 @@ export default function NewProjectDialog({
   open,
   onClose,
 }: NewProjectDialogProps) {
-  const [error, setError] = useState('')
   const createProject = useCreateProject()
 
   const {
@@ -29,24 +28,28 @@ export default function NewProjectDialog({
 
   const onSubmit = async (data: ProjectFormData) => {
     try {
-      setError('')
       await createProject.mutateAsync(data)
       reset()
       onClose()
+      toast.success('Project created successfully')
     } catch (err: unknown) {
+      let errorMessage = 'Failed to create project'
+
       if (err instanceof AxiosError) {
-        setError(err.response?.data.errors[0].message)
+        errorMessage =
+          err.response?.data?.errors?.[0]?.message ||
+          err.response?.data?.message ||
+          errorMessage
       } else if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Failed to create project')
+        errorMessage = err.message
       }
+
+      toast.error(errorMessage)
     }
   }
 
   const handleClose = () => {
     reset()
-    setError('')
     onClose()
   }
 
@@ -66,12 +69,6 @@ export default function NewProjectDialog({
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
