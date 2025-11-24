@@ -3,35 +3,37 @@ import { useAuthStore } from '@/store/authStore'
 import StatCard, { type StatCardProps } from '@/components/dashboard/StatCard'
 import RecentProjects from '@/components/dashboard/RecentProjects'
 import ActivityOverview from '@/components/dashboard/ActivityOverview'
+import { useDashboardStats } from '@/hooks/useDashboard'
 
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user)
+  const { data: stats, isLoading } = useDashboardStats()
 
-  const stats: StatCardProps[] = [
+  const statCards: StatCardProps[] = [
     {
       title: 'Total Projects',
-      value: '12',
+      value: stats?.projects.total.toString() || '0',
       icon: 'folder' as const,
       bgColor: 'bg-blue-50',
       iconColor: 'text-blue-500',
     },
     {
       title: 'Active Tasks',
-      value: '24',
+      value: stats?.tasks.total.toString() || '0',
       icon: 'clock' as const,
       bgColor: 'bg-orange-50',
       iconColor: 'text-orange-500',
     },
     {
       title: 'Completed',
-      value: '156',
+      value: stats?.tasks.byStatus.completada?.toString() || '0',
       icon: 'check' as const,
       bgColor: 'bg-green-50',
       iconColor: 'text-green-500',
     },
     {
-      title: 'Completion Rate',
-      value: '78%',
+      title: 'Assigned to Me',
+      value: stats?.tasks.assigned.toString() || '0',
       icon: 'trending' as const,
       bgColor: 'bg-purple-50',
       iconColor: 'text-purple-500',
@@ -76,15 +78,25 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat) => (
-            <StatCard key={stat.title} {...stat} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {statCards.map((stat) => (
+                <StatCard key={stat.title} {...stat} />
+              ))}
+            </div>
 
-        <RecentProjects />
+            <RecentProjects />
 
-        <ActivityOverview />
+            {stats?.recentTasks && stats.recentTasks.length > 0 && (
+              <ActivityOverview />
+            )}
+          </>
+        )}
       </div>
     </div>
   )

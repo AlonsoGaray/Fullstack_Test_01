@@ -16,7 +16,7 @@ export const projectsApi = {
     const response = await apiClient.get<ApiSuccess<Project[]>>(
       `/projects?${params}`,
     )
-    return response.data
+    return response.data.data
   },
 
   getProjectById: async (id: string) => {
