@@ -16,7 +16,7 @@ services:
 
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     container_name: project_management_backend
     restart: unless-stopped
@@ -28,12 +28,27 @@ services:
       MONGODB_URI: mongodb://mongodb:27017/project_management
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
       RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-900000}
       RATE_LIMIT_AUTH_MAX: ${RATE_LIMIT_AUTH_MAX:-5}
       RATE_LIMIT_API_MAX: ${RATE_LIMIT_API_MAX:-100}
     depends_on:
       - mongodb
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: project_management_frontend
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+    depends_on:
+      - backend
     networks:
       - app-network
 
