@@ -1,10 +1,23 @@
+import { useState } from 'react'
 import type { Task } from '@/types/api'
+import { useUpdateTask } from '@/hooks/useTasks'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
+import { MoreVertical } from 'lucide-react'
 
 interface TaskCardProps {
   task: Task
 }
 
 export function TaskCard({ task }: TaskCardProps) {
+  const [isUpdating, setIsUpdating] = useState(false)
+  const updateTask = useUpdateTask()
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -27,9 +40,79 @@ export function TaskCard({ task }: TaskCardProps) {
     }
   }
 
+  const handleStatusChange = async (
+    newStatus: 'pendiente' | 'en progreso' | 'completada',
+  ) => {
+    setIsUpdating(true)
+    try {
+      await updateTask.mutateAsync({
+        id: task._id,
+        data: { status: newStatus },
+      })
+    } catch (error) {
+      console.error('Failed to update status:', error)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handlePriorityChange = async (
+    newPriority: 'baja' | 'media' | 'alta',
+  ) => {
+    setIsUpdating(true)
+    try {
+      await updateTask.mutateAsync({
+        id: task._id,
+        data: { priority: newPriority },
+      })
+    } catch (error) {
+      console.error('Failed to update priority:', error)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
   return (
-    <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
-      <h4 className="font-semibold text-gray-900 mb-2">{task.title}</h4>
+    <div
+      className={`bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow ${isUpdating ? 'opacity-50' : ''}`}
+    >
+      <div className="flex items-start justify-between mb-2">
+        <h4 className="font-semibold text-gray-900 flex-1">{task.title}</h4>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="p-1 hover:bg-gray-100 rounded">
+              <MoreVertical className="w-4 h-4 text-gray-400" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <div className="px-2 py-1.5 text-xs font-semibold text-gray-500">
+              Change Status
+            </div>
+            <DropdownMenuItem onClick={() => handleStatusChange('pendiente')}>
+              To Do
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleStatusChange('en progreso')}>
+              In Progress
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleStatusChange('completada')}>
+              Done
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <div className="px-2 py-1.5 text-xs font-semibold text-gray-500">
+              Change Priority
+            </div>
+            <DropdownMenuItem onClick={() => handlePriorityChange('baja')}>
+              Low
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handlePriorityChange('media')}>
+              Medium
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handlePriorityChange('alta')}>
+              High
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
       {task.description && (
         <p className="text-sm text-gray-600 mb-3">{task.description}</p>

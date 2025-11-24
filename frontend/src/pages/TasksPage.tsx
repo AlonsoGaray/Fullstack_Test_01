@@ -3,11 +3,12 @@ import { Search, Bell, Settings, Plus, Filter } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useTasks } from '@/hooks/useTasks'
 import { KanbanColumn } from '@/components/task/KanbanColumn'
+import NewTaskDialog from '@/components/task/NewTaskDialog'
 
 export default function TasksPage() {
   const user = useAuthStore((state) => state.user)
-
   const [searchQuery, setSearchQuery] = useState('')
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const { data: tasks, isLoading } = useTasks()
 
@@ -53,7 +54,10 @@ export default function TasksPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Tasks</h1>
             <p className="text-gray-500">Organize and track all your tasks</p>
           </div>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <button
+            onClick={() => setDialogOpen(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
             <Plus className="w-5 h-5" />
             <span>New Task</span>
           </button>
@@ -78,7 +82,7 @@ export default function TasksPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <KanbanColumn
-              title="To Do"
+              title="Pending"
               count={groupedTasks.pendiente.length}
               tasks={groupedTasks.pendiente}
               status="pendiente"
@@ -90,7 +94,7 @@ export default function TasksPage() {
               status="en progreso"
             />
             <KanbanColumn
-              title="Done"
+              title="Completed"
               count={groupedTasks.completada.length}
               tasks={groupedTasks.completada}
               status="completada"
@@ -98,6 +102,8 @@ export default function TasksPage() {
           </div>
         )}
       </div>
+
+      <NewTaskDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
     </div>
   )
 }
