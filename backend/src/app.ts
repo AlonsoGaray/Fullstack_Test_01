@@ -4,6 +4,7 @@ import cors from 'cors'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './config/swagger'
 import authRoutes from './routes/auth.routes'
+import projectRoutes from './routes/project.routes'
 import { errorHandler } from './middleware/errorHandler'
 
 const app: Application = express()
@@ -28,6 +29,7 @@ app.get('/health', (_req: Request, res: Response) => {
 })
 
 app.use('/api/auth', authRoutes)
+app.use('/api/projects', projectRoutes)
 
 app.use((_req: Request, res: Response) => {
   res.status(404).json({
