@@ -71,7 +71,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
   return (
     <>
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-xl p-6 w-fit shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
             <h3 className="text-xl font-semibold text-gray-900">
@@ -107,8 +107,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
           </DropdownMenu>
         </div>
 
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-8">
+        <div className="flex items-center gap-2 justify-betwee">
+          <div className="flex items-center space-x-4">
             <div>
               <p className="text-xs text-gray-500 mb-1">Tasks</p>
               <div className="flex items-center space-x-2">

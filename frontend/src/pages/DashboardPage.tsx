@@ -1,13 +1,31 @@
-import { Search, Bell, Settings } from 'lucide-react'
+import { useState } from 'react'
+import { Settings as SettingsIcon, LogOut } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { useNavigate } from 'react-router-dom'
 import StatCard, { type StatCardProps } from '@/components/dashboard/StatCard'
 import RecentProjects from '@/components/dashboard/RecentProjects'
 import ActivityOverview from '@/components/dashboard/ActivityOverview'
 import { useDashboardStats } from '@/hooks/useDashboard'
+import UserSettingsDialog from '@/components/user/UserSettingsDialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user)
+  const logout = useAuthStore((state) => state.logout)
+  const navigate = useNavigate()
   const { data: stats, isLoading } = useDashboardStats()
+  const [settingsOpen, setSettingsOpen] = useState(false)
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
 
   const statCards: StatCardProps[] = [
     {
@@ -44,40 +62,45 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="px-8 py-4 flex items-center justify-between pl-16 lg:pl-8">
-          <div className="flex-1 max-w-xl">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search projects, tasks..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-500 mt-1">
+              Welcome back, {user?.name || 'User'}!
+            </p>
           </div>
-          <div className="flex items-center space-x-4 ml-6">
-            <button className="p-2 hover:bg-gray-100 rounded-lg">
-              <Bell className="w-5 h-5 text-gray-600" />
-            </button>
-            <button className="p-2 hover:bg-gray-100 rounded-lg">
-              <Settings className="w-5 h-5 text-gray-600" />
-            </button>
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-              {user?.name?.charAt(0).toUpperCase() || 'U'}
-            </div>
+          <div className="flex items-center space-x-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold hover:bg-blue-700 transition-colors cursor-pointer">
+                  {user?.name?.charAt(0).toUpperCase() || 'U'}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-medium text-gray-900">
+                    {user?.name}
+                  </p>
+                  <p className="text-xs text-gray-500">{user?.email}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+                  <SettingsIcon className="w-4 h-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="text-red-600"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
 
       <div className="px-8 py-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.name || 'User'}! 👋
-          </h1>
-          <p className="text-gray-500">
-            Here's an overview of your projects and tasks
-          </p>
-        </div>
-
         {isLoading ? (
           <div className="flex justify-center py-12">
             <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
@@ -98,6 +121,11 @@ export default function DashboardPage() {
           </>
         )}
       </div>
+
+      <UserSettingsDialog
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+      />
     </div>
   )
 }
