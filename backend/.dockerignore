@@ -11,4 +11,3 @@ tests
 jest.config.js
 .eslintrc*
 .prettierrc*
-tsconfig.json

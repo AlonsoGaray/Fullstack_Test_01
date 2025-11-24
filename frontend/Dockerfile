@@ -6,6 +6,7 @@ COPY package*.json ./
 
 RUN npm ci && npm cache clean --force
 
+COPY tsconfig.json vite.config.ts ./
 COPY . .
 
 RUN npm run build

@@ -1,9 +1,9 @@
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { X } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { toast } from 'sonner'
 
 const settingsSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
@@ -20,7 +20,6 @@ export default function UserSettingsDialog({
   open,
   onClose,
 }: UserSettingsDialogProps) {
-  const [error, setError] = useState('')
   const user = useAuthStore((state) => state.user)
   const setUser = useAuthStore((state) => state.setUser)
 
@@ -38,24 +37,20 @@ export default function UserSettingsDialog({
 
   const onSubmit = async (data: SettingsFormData) => {
     try {
-      setError('')
-      // Update user name in store
       if (user) {
         setUser({ ...user, name: data.name })
+        toast.success('Settings updated successfully')
       }
       onClose()
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Failed to update settings')
-      }
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to update settings'
+      toast.error(errorMessage)
     }
   }
 
   const handleClose = () => {
     reset()
-    setError('')
     onClose()
   }
 
@@ -75,12 +70,6 @@ export default function UserSettingsDialog({
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
