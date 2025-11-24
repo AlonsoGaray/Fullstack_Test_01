@@ -106,7 +106,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
         />
       )}
 
-      <main className="flex-1 overflow-y-auto lg:ml-64">{children}</main>
+      <main className="flex-1 overflow-y-auto lg:ml-32">{children}</main>
     </div>
   )
 }

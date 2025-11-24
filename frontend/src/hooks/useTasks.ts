@@ -2,16 +2,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { tasksApi } from '@/api/tasks'
 import type { CreateTaskRequest, UpdateTaskRequest } from '@/types/api'
 
-export const useTasks = (
-  projectId?: string,
-  page = 1,
-  limit = 100,
-  status?: string,
-) => {
+export const useTasks = (projectId?: string) => {
   return useQuery({
-    queryKey: ['tasks', projectId, page, limit, status],
-    queryFn: () => tasksApi.getTasks(projectId, page, limit, status),
-    enabled: !!projectId,
+    queryKey: projectId ? ['tasks', projectId] : ['tasks'],
+    queryFn: () => tasksApi.getTasks(projectId),
   })
 }
 

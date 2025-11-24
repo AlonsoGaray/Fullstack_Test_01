@@ -7,19 +7,9 @@ import type {
 } from '@/types/api'
 
 export const tasksApi = {
-  getTasks: async (
-    projectId?: string,
-    page = 1,
-    limit = 10,
-    status?: string,
-  ) => {
-    const params = new URLSearchParams({
-      page: page.toString(),
-      limit: limit.toString(),
-      ...(projectId && { project: projectId }),
-      ...(status && { status }),
-    })
-    const response = await apiClient.get<ApiSuccess<Task[]>>(`/tasks?${params}`)
+  getTasks: async (projectId?: string) => {
+    const url = projectId ? `/tasks?project=${projectId}` : '/tasks'
+    const response = await apiClient.get<ApiSuccess<Task[]>>(url)
     return response.data.data
   },
 
