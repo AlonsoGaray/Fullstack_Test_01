@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.routes'
 import projectRoutes from './routes/project.routes'
 import taskRoutes from './routes/task.routes'
 import dashboardRoutes from './routes/dashboard.routes'
+import userRoutes from './routes/user.routes'
 import { errorHandler } from './middleware/errorHandler'
 import { authLimiter, apiLimiter } from './middleware/rateLimiter'
 
@@ -35,6 +36,7 @@ app.use('/api/auth', authLimiter, authRoutes)
 app.use('/api/projects', apiLimiter, projectRoutes)
 app.use('/api/tasks', apiLimiter, taskRoutes)
 app.use('/api/dashboard', apiLimiter, dashboardRoutes)
+app.use('/api/users', apiLimiter, userRoutes)
 
 app.use((_req: Request, res: Response) => {
   res.status(404).json({

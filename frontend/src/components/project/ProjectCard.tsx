@@ -19,6 +19,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import ManageTeamDialog from './ManageTeamDialog'
+import ProjectSettingsDialog from './ProjectSettingsDialog'
 
 interface ProjectCardProps {
   project: Project
@@ -27,6 +29,8 @@ interface ProjectCardProps {
 export function ProjectCard({ project }: ProjectCardProps) {
   const { data: tasks } = useTasks(project._id)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [teamDialogOpen, setTeamDialogOpen] = useState(false)
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false)
   const deleteProject = useDeleteProject()
 
   const totalTasks = tasks?.length || 0
@@ -84,11 +88,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTeamDialogOpen(true)}>
                 <Users className="w-4 h-4 mr-2" />
                 <span>Manage Team</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSettingsDialogOpen(true)}>
                 <Settings className="w-4 h-4 mr-2" />
                 <span>Settings</span>
               </DropdownMenuItem>
@@ -171,6 +175,18 @@ export function ProjectCard({ project }: ProjectCardProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ManageTeamDialog
+        open={teamDialogOpen}
+        onClose={() => setTeamDialogOpen(false)}
+        project={project}
+      />
+
+      <ProjectSettingsDialog
+        open={settingsDialogOpen}
+        onClose={() => setSettingsDialogOpen(false)}
+        project={project}
+      />
     </>
   )
 }

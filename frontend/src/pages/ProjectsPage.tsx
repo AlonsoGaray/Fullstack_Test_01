@@ -8,7 +8,16 @@ import { ProjectCard } from '@/components/project/ProjectCard'
 export default function ProjectsPage() {
   const user = useAuthStore((state) => state.user)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const { data: projects, isLoading } = useProjects(1, 100)
+
+  const filteredProjects = projects?.filter((project) => {
+    const query = searchQuery.toLowerCase()
+    return (
+      project.name.toLowerCase().includes(query) ||
+      project.description?.toLowerCase().includes(query)
+    )
+  })
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -20,6 +29,8 @@ export default function ProjectsPage() {
               <input
                 type="text"
                 placeholder="Search projects, tasks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -59,15 +70,17 @@ export default function ProjectsPage() {
           <div className="text-center py-12">
             <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : !projects || projects.length === 0 ? (
+        ) : !filteredProjects || filteredProjects.length === 0 ? (
           <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-100 text-center">
             <p className="text-gray-500">
-              No projects yet. Create your first project!
+              {searchQuery
+                ? 'No projects found matching your search.'
+                : 'No projects yet. Create your first project!'}
             </p>
           </div>
         ) : (
           <div className="space-y-4">
-            {projects.map((project) => (
+            {filteredProjects.map((project) => (
               <ProjectCard key={project._id} project={project} />
             ))}
           </div>

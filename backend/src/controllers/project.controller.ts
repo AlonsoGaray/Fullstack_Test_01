@@ -210,7 +210,7 @@ export const updateProject = async (
  * @swagger
  * /api/projects/{id}:
  *   delete:
- *     summary: Delete project
+ *     summary: Delete a project
  *     tags: [Projects]
  *     security:
  *       - bearerAuth: []
@@ -221,10 +221,10 @@ export const updateProject = async (
  *         schema:
  *           type: string
  *     responses:
- *       200:
+ *       204:
  *         description: Project deleted successfully
- *       403:
- *         description: Only owner can delete
+ *       404:
+ *         description: Project not found
  */
 export const deleteProject = async (
   req: AuthRequest,
@@ -232,11 +232,8 @@ export const deleteProject = async (
 ): Promise<void> => {
   try {
     const userId = req.user!._id
-    const result = await projectService.deleteProject(req.params.id, userId)
-    res.status(200).json({
-      success: true,
-      message: result.message,
-    })
+    await projectService.deleteProject(req.params.id, userId)
+    res.status(204).send()
   } catch (error: unknown) {
     res
       .status(
