@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import AuthPage from '@/pages/AuthPage'
 import DashboardPage from '@/pages/DashboardPage'
-import SidebarLayout from '@/components/layout/SidebarLayout'
+import ProjectsPage from '@/pages/ProjectsPage'
+import ProtectedRoute from '@/components/routes/ProtectedRoute'
+import PublicRoute from '@/components/routes/PublicRoute'
 import { useIsAuthenticated } from '@/store/authStore'
 
 function App() {
@@ -12,21 +14,34 @@ function App() {
       <Routes>
         <Route
           path="/login"
-          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <AuthPage />}
+          element={
+            <PublicRoute>
+              <AuthPage />
+            </PublicRoute>
+          }
         />
         <Route
           path="/dashboard"
           element={
-            isAuthenticated ? (
-              <SidebarLayout>
-                <DashboardPage />
-              </SidebarLayout>
-            ) : (
-              <Navigate to="/login" replace />
-            )
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
           }
         />
-        <Route path="/" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
+        <Route
+          path="/projects"
+          element={
+            <ProtectedRoute>
+              <ProjectsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />
+          }
+        />
       </Routes>
     </BrowserRouter>
   )
