@@ -1,15 +1,25 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import AuthPage from '@/pages/AuthPage'
+import DashboardPage from '@/pages/DashboardPage'
+import { useIsAuthenticated } from '@/store/authStore'
+
 function App() {
+  const isAuthenticated = useIsAuthenticated()
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Project Management
-        </h1>
-        <p className="text-gray-600">
-          Initial configuration complete.
-        </p>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/login"
+          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <AuthPage />}
+        />
+        <Route
+          path="/dashboard"
+          element={isAuthenticated ? <DashboardPage /> : <Navigate to="/login" replace />}
+        />
+        <Route path="/" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
