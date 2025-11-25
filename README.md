@@ -19,6 +19,18 @@ Desarrollarás una **plataforma de gestión de proyectos y tareas colaborativa**
 
 ---
 
+## 🚀 Demo en Vivo
+
+La aplicación está desplegada y disponible para pruebas en producción:
+
+- **Frontend**: [https://fullstack-test-01.vercel.app/](https://fullstack-test-01.vercel.app/)
+- **Backend API**: [https://jelou-full-test.onrender.com](https://jelou-full-test.onrender.com)
+- **API Docs**: [https://jelou-full-test.onrender.com/api-docs](https://jelou-full-test.onrender.com/api-docs)
+
+> **Nota**: El backend está en un plan gratuito de Render, por lo que puede tardar ~50 segundos en responder la primera vez (cold start).
+
+---
+
 ## 🛠️ Stack Tecnológico Requerido
 
 ### Backend
@@ -196,26 +208,97 @@ Si tienes dudas sobre los requisitos, no dudes en contactarnos.
 
 # 📖 Instrucciones de Ejecución
 
-> **Nota**: Completa esta sección con las instrucciones para ejecutar tu proyecto.
-
 ## Prerrequisitos
-[Tus prerrequisitos]
+
+- **Node.js**: v22 o superior
+- **MongoDB**: Local o MongoDB Atlas (cloud)
+- **Docker** (opcional): Para deployment con contenedores
+- **Git**: Para clonar el repositorio
 
 ## Instalación
+
+### 1. Clonar el repositorio
+
 ```bash
-# Tus comandos
+git clone https://github.com/AlonsoGaray/Fullstack_Test_01.git
+cd Fullstack_Test_01
+```
+
+### 2. Instalar dependencias
+
+```bash
+# Backend
+cd backend
+npm install
+
+# Frontend
+cd ../frontend
+npm install
 ```
 
 ## Configuración
-```bash
-# Variables de entorno
+
+### Backend - Variables de Entorno
+
+Crear archivo `backend/.env`:
+
+```env
+# Server
+NODE_ENV=development
+PORT=3000
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/project_management
+
+# JWT
+JWT_SECRET=tu-clave-secreta-super-segura
+JWT_EXPIRES_IN=7d
+
+# Security
+CORS_ORIGIN=http://localhost:5173
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_AUTH_MAX=5
+RATE_LIMIT_API_MAX=100
+```
+
+### Frontend - Variables de Entorno
+
+Crear archivo `frontend/.env`:
+
+```env
+VITE_API_URL=http://localhost:3000/api
 ```
 
 ## Ejecución
+
+### Opción 1: Desarrollo Local
+
 ```bash
-# Backend
-# Frontend
+# Terminal 1 - Backend
+cd backend
+npm run dev
+
+# Terminal 2 - Frontend
+cd frontend
+npm run dev
 ```
+
+Acceder a:
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:3000/api
+- **MongoDB**: localhost:27017
+
+### Opción 2: Con Docker
+
+```bash
+# Desde la raíz del proyecto
+docker-compose up --build
+```
+
+Acceder a:
+- **Frontend**: http://localhost
+- **Backend API**: http://localhost:3000/api
+- **MongoDB**: localhost:27017
 
 ## Tests
 ```bash
@@ -223,7 +306,34 @@ Si tienes dudas sobre los requisitos, no dudes en contactarnos.
 ```
 
 ## API Documentation
-- Swagger: [Tu URL]
+
+- **Swagger UI**: http://localhost:3000/api-docs
+
+### Endpoints Principales
+
+**Autenticación:**
+- `POST /api/auth/register` - Registro de usuario
+- `POST /api/auth/login` - Inicio de sesión
+
+**Proyectos:**
+- `GET /api/projects` - Listar proyectos
+- `POST /api/projects` - Crear proyecto
+- `GET /api/projects/:id` - Obtener proyecto
+- `PUT /api/projects/:id` - Actualizar proyecto
+- `DELETE /api/projects/:id` - Eliminar proyecto
+
+**Tareas:**
+- `GET /api/tasks` - Listar tareas
+- `POST /api/tasks` - Crear tarea
+- `PUT /api/tasks/:id` - Actualizar tarea
+- `DELETE /api/tasks/:id` - Eliminar tarea
+
+**Dashboard:**
+- `GET /api/dashboard/stats` - Estadísticas del usuario
 
 ## Credenciales de Prueba
-[Si aplica]
+
+Después de registrarte, puedes crear:
+- Proyectos con colaboradores
+- Tareas con diferentes prioridades (alta, media, baja)
+- Estados: pendiente, en progreso, completada
